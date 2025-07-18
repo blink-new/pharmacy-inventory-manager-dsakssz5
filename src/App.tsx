@@ -5,6 +5,7 @@ import { DrugCard } from './components/DrugCard'
 import { SubstitutionPanel } from './components/SubstitutionPanel'
 import { SearchBar } from './components/SearchBar'
 import { AddDrugModal } from './components/AddDrugModal'
+import { EditDrugModal } from './components/EditDrugModal'
 import { Button } from './components/ui/button'
 import { Badge } from './components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
@@ -36,6 +37,8 @@ function App() {
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null)
   const [showSubstitutionPanel, setShowSubstitutionPanel] = useState(false)
   const [showAddDrugModal, setShowAddDrugModal] = useState(false)
+  const [showEditDrugModal, setShowEditDrugModal] = useState(false)
+  const [drugToEdit, setDrugToEdit] = useState<Drug | null>(null)
   const [filters, setFilters] = useState<SearchFilters>({
     category: '',
     stockStatus: '',
@@ -140,13 +143,26 @@ function App() {
   const handleSelectSubstitute = (drug: Drug) => {
     setShowSubstitutionPanel(false)
     setSelectedDrug(null)
-    // In a real app, this might add the substitute to a cart or update inventory
-    alert(`Selected substitute: ${drug.name}`)
+    // Open edit modal for the selected substitute
+    setDrugToEdit(drug)
+    setShowEditDrugModal(true)
   }
 
   const handleAddDrug = (newDrug: Drug) => {
     setDrugs(prev => [...prev, newDrug])
     alert(`Successfully added ${newDrug.name} to inventory!`)
+  }
+
+  const handleUpdateDrug = (updatedDrug: Drug) => {
+    setDrugs(prev => prev.map(drug => 
+      drug.id === updatedDrug.id ? updatedDrug : drug
+    ))
+    alert(`Successfully updated ${updatedDrug.name}!`)
+  }
+
+  const handleEditDrug = (drug: Drug) => {
+    setDrugToEdit(drug)
+    setShowEditDrugModal(true)
   }
 
   if (loading) {
@@ -348,6 +364,7 @@ function App() {
                   key={drug.id}
                   drug={drug}
                   onClick={() => handleDrugClick(drug)}
+                  onEdit={() => handleEditDrug(drug)}
                 />
               ))}
             </div>
@@ -389,6 +406,19 @@ function App() {
         isOpen={showAddDrugModal}
         onClose={() => setShowAddDrugModal(false)}
         onAddDrug={handleAddDrug}
+        categories={categories}
+        manufacturers={manufacturers}
+      />
+
+      {/* Edit Drug Modal */}
+      <EditDrugModal
+        isOpen={showEditDrugModal}
+        onClose={() => {
+          setShowEditDrugModal(false)
+          setDrugToEdit(null)
+        }}
+        onUpdateDrug={handleUpdateDrug}
+        drug={drugToEdit}
         categories={categories}
         manufacturers={manufacturers}
       />

@@ -1,15 +1,17 @@
 import { Drug } from '../types/pharmacy'
 import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { AlertTriangle, Package, Pill, ShieldCheck } from 'lucide-react'
+import { Button } from './ui/button'
+import { AlertTriangle, Package, Pill, ShieldCheck, Edit } from 'lucide-react'
 
 interface DrugCardProps {
   drug: Drug
   onClick?: () => void
+  onEdit?: () => void
   showSubstitutes?: boolean
 }
 
-export function DrugCard({ drug, onClick, showSubstitutes = false }: DrugCardProps) {
+export function DrugCard({ drug, onClick, onEdit, showSubstitutes = false }: DrugCardProps) {
   const getStockStatus = () => {
     if (drug.stockLevel === 0) return 'out'
     if (drug.stockLevel <= drug.minStockLevel) return 'low'
@@ -38,14 +40,13 @@ export function DrugCard({ drug, onClick, showSubstitutes = false }: DrugCardPro
 
   return (
     <Card 
-      className={`cursor-pointer transition-all hover:shadow-md ${
+      className={`transition-all hover:shadow-md ${
         showSubstitutes ? 'ring-2 ring-sky-200 bg-sky-50' : ''
       }`}
-      onClick={onClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
+          <div className="flex-1 cursor-pointer" onClick={onClick}>
             <CardTitle className="text-lg font-semibold text-gray-900 leading-tight">
               {drug.brandName || drug.genericName}
             </CardTitle>
@@ -56,13 +57,28 @@ export function DrugCard({ drug, onClick, showSubstitutes = false }: DrugCardPro
             )}
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge 
-              variant="outline" 
-              className={`${getStockColor()} flex items-center gap-1`}
-            >
-              {getStockIcon()}
-              {drug.stockLevel}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant="outline" 
+                className={`${getStockColor()} flex items-center gap-1`}
+              >
+                {getStockIcon()}
+                {drug.stockLevel}
+              </Badge>
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit()
+                  }}
+                  className="h-8 w-8 p-0 hover:bg-sky-100"
+                >
+                  <Edit className="h-4 w-4 text-sky-600" />
+                </Button>
+              )}
+            </div>
             {drug.isControlled && (
               <Badge variant="destructive" className="text-xs">
                 <ShieldCheck className="h-3 w-3 mr-1" />
@@ -73,7 +89,7 @@ export function DrugCard({ drug, onClick, showSubstitutes = false }: DrugCardPro
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 cursor-pointer" onClick={onClick}>
         <div className="space-y-3">
           {/* Drug Details */}
           <div className="flex items-center gap-2 text-sm">
