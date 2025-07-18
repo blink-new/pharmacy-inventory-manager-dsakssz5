@@ -4,6 +4,7 @@ import { sampleDrugs } from './data/sampleDrugs'
 import { DrugCard } from './components/DrugCard'
 import { SubstitutionPanel } from './components/SubstitutionPanel'
 import { SearchBar } from './components/SearchBar'
+import { AddDrugModal } from './components/AddDrugModal'
 import { Button } from './components/ui/button'
 import { Badge } from './components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
@@ -34,6 +35,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null)
   const [showSubstitutionPanel, setShowSubstitutionPanel] = useState(false)
+  const [showAddDrugModal, setShowAddDrugModal] = useState(false)
   const [filters, setFilters] = useState<SearchFilters>({
     category: '',
     stockStatus: '',
@@ -140,6 +142,11 @@ function App() {
     setSelectedDrug(null)
     // In a real app, this might add the substitute to a cart or update inventory
     alert(`Selected substitute: ${drug.name}`)
+  }
+
+  const handleAddDrug = (newDrug: Drug) => {
+    setDrugs(prev => [...prev, newDrug])
+    alert(`Successfully added ${newDrug.name} to inventory!`)
   }
 
   if (loading) {
@@ -267,7 +274,10 @@ function App() {
                 Search for medications and find intelligent substitutes
               </p>
             </div>
-            <Button className="flex items-center gap-2">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => setShowAddDrugModal(true)}
+            >
               <Plus className="h-4 w-4" />
               Add New Drug
             </Button>
@@ -373,6 +383,15 @@ function App() {
           onSelectSubstitute={handleSelectSubstitute}
         />
       )}
+
+      {/* Add Drug Modal */}
+      <AddDrugModal
+        isOpen={showAddDrugModal}
+        onClose={() => setShowAddDrugModal(false)}
+        onAddDrug={handleAddDrug}
+        categories={categories}
+        manufacturers={manufacturers}
+      />
     </div>
   )
 }
